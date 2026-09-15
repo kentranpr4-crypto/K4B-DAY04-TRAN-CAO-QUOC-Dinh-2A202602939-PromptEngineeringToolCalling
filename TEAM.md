@@ -12,13 +12,13 @@
 
 ## Thành viên
 
-| Họ và tên | MSSV | GitHub | Vai trò và công việc | File/commit/PR |
-|---|---|---|---|---|
 
-|Trần Cao Quốc Định | kentranpr4-crypto | 2A202602939 |  Đọc tools.yaml + tool registry, kiểm tra tool/input/result/error; sửa tool declaration hoặc code khi cần | tools.yaml, mã nguồn tool registry và backend xử lý tool | 
-|Nguyễn Thái Lương | thailuong1008-coder | 2A202602932 |  Đọc system_prompt.md, chạy v0, phân tích failure; sửa prompt qua v1 → v3; ghi hypothesis | system_prompt.md, prompts/ (v1 → v3), hypothesis.md |
-|Nguyễn Mạnh Tiến | neitznguyen369 | 2A202602506 |  Quản lý eval_group.json, chạy base/extension/adversarial, thu thập JSON, metric, transcript, version_log.csv| eval_group.json, version_log.csv, thư mục lưu transcript và JSON kết quả. |
-|Nguyễn Xuân Trường | truongapep | 2A202602761 |  Làm UI chat hiển thị tool/input/result/error/version; hoàn thiện REPORT.md, TEAM.md, screenshot/demo |  index.html, REPORT.md, TEAM.md, thư mục ảnh/video demo|
+| Họ và tên | GitHub | MSSV | Vai trò và công việc | File/commit/PR |
+|---|---|---|---|---|
+| Trần Cao Quốc Định | kentranpr4-crypto | 2A202602939 | Đọc tools.yaml + tool registry, kiểm tra tool/input/result/error; sửa tool declaration hoặc code khi cần | tools.yaml, mã nguồn tool registry và backend xử lý tool |
+| Nguyễn Thái Lương | thailuong1008-coder | 2A202602932 | Đọc system_prompt.md, chạy v0, phân tích failure; sửa prompt qua v1 → v3; ghi hypothesis | system_prompt.md, prompts/ (v1 → v3), hypothesis.md |
+| Nguyễn Mạnh Tiến | neitznguyen369 | 2A202602506 | Quản lý eval_group.json, chạy base/extension/adversarial, thu thập JSON, metric, transcript, version_log.csv | eval_group.json, version_log.csv, thư mục lưu transcript và JSON kết quả. |
+| Nguyễn Xuân Trường | truongapep | 2A202602761 | Làm UI chat hiển thị tool/input/result/error/version; hoàn thiện REPORT.md, TEAM.md, screenshot/demo | index.html, REPORT.md, TEAM.md, thư mục ảnh/video demo |
 ## Nhận xét chung
 
 - Kết quả và bằng chứng: 
