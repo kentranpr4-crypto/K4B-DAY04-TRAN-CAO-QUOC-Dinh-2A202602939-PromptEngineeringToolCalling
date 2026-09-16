@@ -1,0 +1,694 @@
+{
+  "run_id": "v3_B_group_anthropic_20260915T204906033237",
+  "version": "v3",
+  "artifact_version": "v3+p4b7e86879be2+t7a6eafaa8067",
+  "prompt_hash": "4b7e86879be2f070f260cbb80a2770c71a4c89dd20184b38d8d7ddfa397dfc30",
+  "tools_hash": "7a6eafaa8067336c7c1058bc44f20087e0b5097ffc02e32983b7a2aa4e9088cc",
+  "phase": "B",
+  "suite": "group",
+  "provider": "anthropic",
+  "model": "claude-haiku-4-5-20251001",
+  "system_prompt": "/home/dinh_tran/K4B-DAY04-TRAN-CAO-QUOC-Dinh-2A202602939-PromptEngineeringToolCalling/starter_v0/artifacts/system_prompt.md",
+  "tools": "/home/dinh_tran/K4B-DAY04-TRAN-CAO-QUOC-Dinh-2A202602939-PromptEngineeringToolCalling/starter_v0/artifacts/tools.yaml",
+  "eval_cases": "data/eval_group.json",
+  "dataset_id": "day04_v3_amr_group",
+  "dataset_role": "group",
+  "description": "Ten original Hospital AMR Operations Assistant cases: five single-turn and five multi-turn. Written to cover behavior the base set does not (on_mission filter, WARD_3A, robot number alias, pickup missions, robot correction, garbled confirmation); none repeat base, extension or adversarial wording.",
+  "generated_at": "2026-09-15T20:49:06",
+  "summary": {
+    "total_cases": 10,
+    "measured_cases": 10,
+    "provider_error_cases": 0,
+    "passed_cases": 9,
+    "case_accuracy": 0.9,
+    "tool_routing_accuracy": 1.0,
+    "argument_accuracy": 0.9,
+    "multiturn_accuracy": 1.0,
+    "failure_counts": {
+      "wrong_arg_value": 1
+    },
+    "observed_mismatch_counts": {
+      "wrong_arg_value": 1
+    }
+  },
+  "results": [
+    {
+      "id": "G01_list_on_mission",
+      "phase": "B",
+      "suite": "group",
+      "case_suite": "group",
+      "is_multiturn": false,
+      "metadata": {
+        "what_it_tests": "Câu hỏi về cả đội robot dùng list_robots với status on_mission, không tra từng robot"
+      },
+      "input": "Hiện có robot nào đang chạy nhiệm vụ không?",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "list_robots",
+            "args": {
+              "status": "on_mission"
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": true,
+        "routing_correct": true,
+        "args_correct": true,
+        "actual_tool_calls": [
+          {
+            "name": "list_robots",
+            "args": {
+              "status": "on_mission"
+            }
+          }
+        ],
+        "actual_text": null,
+        "case_failure_type": "wrong_tool",
+        "observed_mismatch": null,
+        "failure_type": null,
+        "failures": []
+      },
+      "tool_results": [
+        {
+          "tool": "list_robots",
+          "args": {
+            "status": "on_mission"
+          },
+          "result": {
+            "tool": "list_robots",
+            "filters": {
+              "status": "on_mission",
+              "min_battery": 0
+            },
+            "count": 1,
+            "robots": [
+              {
+                "robot_id": "AMR-04",
+                "status": "on_mission",
+                "battery_pct": 45,
+                "location_id": "LAB_B"
+              }
+            ],
+            "snapshot_at": "2026-09-15T18:00:00+07:00"
+          }
+        }
+      ]
+    },
+    {
+      "id": "G02_ward_location_floor",
+      "phase": "B",
+      "suite": "group",
+      "case_suite": "group",
+      "is_multiturn": false,
+      "metadata": {
+        "what_it_tests": "Map tên gọi tự nhiên 'khoa nội trú 3A' sang location_id WARD_3A"
+      },
+      "input": "Khoa nội trú 3A nằm ở tầng mấy?",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "get_location_info",
+            "args": {
+              "location_id": "WARD_3A"
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": true,
+        "routing_correct": true,
+        "args_correct": true,
+        "actual_tool_calls": [
+          {
+            "name": "get_location_info",
+            "args": {
+              "location_id": "WARD_3A"
+            }
+          }
+        ],
+        "actual_text": null,
+        "case_failure_type": "wrong_arg_value",
+        "observed_mismatch": null,
+        "failure_type": null,
+        "failures": []
+      },
+      "tool_results": [
+        {
+          "tool": "get_location_info",
+          "args": {
+            "location_id": "WARD_3A"
+          },
+          "result": {
+            "tool": "get_location_info",
+            "location_id": "WARD_3A",
+            "location": {
+              "name": "Khoa nội trú 3A",
+              "floor": "3",
+              "zone": "clinical",
+              "restricted": false,
+              "amr_access": "open",
+              "notes": "Hành lang 3A-Đông đang vệ sinh sàn đến 19:00; AMR đi đường vòng."
+            },
+            "snapshot_at": "2026-09-15T18:00:00+07:00"
+          }
+        }
+      ]
+    },
+    {
+      "id": "G03_route_to_pharmacy",
+      "phase": "B",
+      "suite": "group",
+      "case_suite": "group",
+      "is_multiturn": false,
+      "metadata": {
+        "what_it_tests": "Hỏi thời gian di chuyển dùng get_route_info và map 'nhà thuốc' sang PHARMACY"
+      },
+      "input": "Từ chỗ AMR-04 đang đứng tới nhà thuốc mất mấy phút?",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "get_route_info",
+            "args": {
+              "robot_id": "AMR-04",
+              "destination_id": "PHARMACY"
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": true,
+        "routing_correct": true,
+        "args_correct": true,
+        "actual_tool_calls": [
+          {
+            "name": "get_route_info",
+            "args": {
+              "robot_id": "AMR-04",
+              "destination_id": "PHARMACY"
+            }
+          }
+        ],
+        "actual_text": null,
+        "case_failure_type": "wrong_tool",
+        "observed_mismatch": null,
+        "failure_type": null,
+        "failures": []
+      },
+      "tool_results": [
+        {
+          "tool": "get_route_info",
+          "args": {
+            "robot_id": "AMR-04",
+            "destination_id": "PHARMACY"
+          },
+          "result": {
+            "tool": "get_route_info",
+            "robot_id": "AMR-04",
+            "from_location_id": "LAB_B",
+            "destination_id": "PHARMACY",
+            "distance_m": 180,
+            "eta_min": 6,
+            "elevator": "A",
+            "elevator_status": "available",
+            "blocked_segments": [],
+            "snapshot_at": "2026-09-15T18:00:00+07:00"
+          }
+        }
+      ]
+    },
+    {
+      "id": "G04_robot_number_alias",
+      "phase": "B",
+      "suite": "group",
+      "case_suite": "group",
+      "is_multiturn": false,
+      "metadata": {
+        "what_it_tests": "Chuẩn hóa 'robot số 3' thành AMR-03 đủ hai chữ số và chọn check errors"
+      },
+      "input": "Robot số 3 đang báo lỗi gì vậy?",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "get_robot_status",
+            "args": {
+              "robot_id": "AMR-03",
+              "check": "errors"
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": false,
+        "routing_correct": true,
+        "args_correct": false,
+        "actual_tool_calls": [
+          {
+            "name": "get_robot_status",
+            "args": {
+              "robot_id": "3",
+              "check": "errors"
+            }
+          }
+        ],
+        "actual_text": null,
+        "case_failure_type": "wrong_arg_value",
+        "observed_mismatch": "wrong_arg_value",
+        "failure_type": "wrong_arg_value",
+        "failures": [
+          "robot_id: expected 'AMR-03', got '3'"
+        ]
+      },
+      "tool_results": [
+        {
+          "tool": "get_robot_status",
+          "args": {
+            "robot_id": "3",
+            "check": "errors"
+          },
+          "result": {
+            "tool": "get_robot_status",
+            "error": "invalid_robot_id",
+            "message": "robot_id must look like AMR-02.",
+            "robot_id": "3"
+          }
+        }
+      ]
+    },
+    {
+      "id": "G05_pickup_needs_confirmation",
+      "phase": "B",
+      "suite": "group",
+      "case_suite": "group",
+      "is_multiturn": false,
+      "metadata": {
+        "what_it_tests": "Mission pickup cũng là hành động ghi, phải xin xác nhận trước"
+      },
+      "input": "Nhờ AMR-01 qua phòng cấp cứu lấy thùng vật tư.",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "clarify",
+            "args": {
+              "response_type": "yes_no"
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": true,
+        "routing_correct": true,
+        "args_correct": true,
+        "actual_tool_calls": [
+          {
+            "name": "clarify",
+            "args": {
+              "question": "Xác nhận gửi robot AMR-01 đến phòng cấp cứu (ER) để lấy thùng vật tư?",
+              "response_type": "yes_no"
+            }
+          }
+        ],
+        "actual_text": null,
+        "case_failure_type": "wrong_boundary",
+        "observed_mismatch": null,
+        "failure_type": null,
+        "failures": []
+      },
+      "tool_results": [
+        {
+          "tool": "clarify",
+          "args": {
+            "question": "Xác nhận gửi robot AMR-01 đến phòng cấp cứu (ER) để lấy thùng vật tư?",
+            "response_type": "yes_no"
+          },
+          "result": {
+            "tool": "clarify",
+            "question": "Xác nhận gửi robot AMR-01 đến phòng cấp cứu (ER) để lấy thùng vật tư?",
+            "response_type": "yes_no",
+            "options": [],
+            "awaiting_user": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "G06_fill_missing_robot",
+      "phase": "B",
+      "suite": "group",
+      "case_suite": "group",
+      "is_multiturn": true,
+      "metadata": {
+        "what_it_tests": "Giữ ý định xem pin từ lượt trước và điền robot_id được bổ sung ở lượt sau"
+      },
+      "input": [
+        {
+          "role": "user",
+          "content": "Kiểm tra pin giúp mình với."
+        },
+        {
+          "role": "user",
+          "content": "Robot AMR-05 nhé."
+        }
+      ],
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "get_robot_status",
+            "args": {
+              "robot_id": "AMR-05",
+              "check": "battery"
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": true,
+        "routing_correct": true,
+        "args_correct": true,
+        "actual_tool_calls": [
+          {
+            "name": "get_robot_status",
+            "args": {
+              "robot_id": "AMR-05",
+              "check": "battery"
+            }
+          }
+        ],
+        "actual_text": null,
+        "case_failure_type": "missing_info",
+        "observed_mismatch": null,
+        "failure_type": null,
+        "failures": []
+      },
+      "tool_results": [
+        {
+          "tool": "get_robot_status",
+          "args": {
+            "robot_id": "AMR-05",
+            "check": "battery"
+          },
+          "result": {
+            "tool": "get_robot_status",
+            "robot_id": "AMR-05",
+            "check": "battery",
+            "robot": {
+              "robot_id": "AMR-05",
+              "model": "MedCart M300",
+              "status": "charging"
+            },
+            "data": {
+              "battery_pct": 15,
+              "charging": true,
+              "dispatch_min_battery_pct": 20
+            },
+            "last_seen": "2026-09-15T17:59:45+07:00",
+            "snapshot_at": "2026-09-15T18:00:00+07:00"
+          }
+        }
+      ]
+    },
+    {
+      "id": "G07_correct_robot",
+      "phase": "B",
+      "suite": "group",
+      "case_suite": "group",
+      "is_multiturn": true,
+      "metadata": {
+        "what_it_tests": "Dùng robot được sửa ở lượt mới nhất, giữ loại thông tin location"
+      },
+      "input": [
+        {
+          "role": "user",
+          "content": "Xem vị trí của AMR-01."
+        },
+        {
+          "role": "user",
+          "content": "À nhầm, mình cần xem AMR-04."
+        }
+      ],
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "get_robot_status",
+            "args": {
+              "robot_id": "AMR-04",
+              "check": "location"
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": true,
+        "routing_correct": true,
+        "args_correct": true,
+        "actual_tool_calls": [
+          {
+            "name": "get_robot_status",
+            "args": {
+              "robot_id": "AMR-04",
+              "check": "location"
+            }
+          }
+        ],
+        "actual_text": null,
+        "case_failure_type": "wrong_arg_value",
+        "observed_mismatch": null,
+        "failure_type": null,
+        "failures": []
+      },
+      "tool_results": [
+        {
+          "tool": "get_robot_status",
+          "args": {
+            "robot_id": "AMR-04",
+            "check": "location"
+          },
+          "result": {
+            "tool": "get_robot_status",
+            "robot_id": "AMR-04",
+            "check": "location",
+            "robot": {
+              "robot_id": "AMR-04",
+              "model": "MedCart M300",
+              "status": "on_mission"
+            },
+            "data": {
+              "location_id": "LAB_B",
+              "location_name": "Phòng xét nghiệm B",
+              "floor": "3"
+            },
+            "last_seen": "2026-09-15T17:59:58+07:00",
+            "snapshot_at": "2026-09-15T18:00:00+07:00"
+          }
+        }
+      ]
+    },
+    {
+      "id": "G08_confirmed_pickup",
+      "phase": "B",
+      "suite": "group",
+      "case_suite": "group",
+      "is_multiturn": true,
+      "metadata": {
+        "what_it_tests": "Sau xác nhận rõ ràng, dispatch với mission_type pickup thay vì mặc định delivery"
+      },
+      "input": [
+        {
+          "role": "user",
+          "content": "Cho AMR-02 lên khoa 3A lấy mẫu xét nghiệm."
+        },
+        {
+          "role": "user",
+          "content": "Xác nhận, cho AMR-02 đi lấy mẫu ở khoa 3A."
+        }
+      ],
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "dispatch_mission",
+            "args": {
+              "robot_id": "AMR-02",
+              "destination_id": "WARD_3A",
+              "mission_type": "pickup",
+              "confirmed": true
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": true,
+        "routing_correct": true,
+        "args_correct": true,
+        "actual_tool_calls": [
+          {
+            "name": "dispatch_mission",
+            "args": {
+              "robot_id": "AMR-02",
+              "destination_id": "WARD_3A",
+              "mission_type": "pickup",
+              "confirmed": true
+            }
+          }
+        ],
+        "actual_text": null,
+        "case_failure_type": "wrong_arg_value",
+        "observed_mismatch": null,
+        "failure_type": null,
+        "failures": []
+      },
+      "tool_results": [
+        {
+          "tool": "dispatch_mission",
+          "args": {
+            "robot_id": "AMR-02",
+            "destination_id": "WARD_3A",
+            "mission_type": "pickup",
+            "confirmed": true
+          },
+          "result": {
+            "tool": "dispatch_mission",
+            "status": "created",
+            "mission_id": "MS-0034",
+            "robot_id": "AMR-02",
+            "destination_id": "WARD_3A",
+            "mission_type": "pickup",
+            "priority": "normal",
+            "eta_min": 8,
+            "path": "/home/dinh_tran/K4B-DAY04-TRAN-CAO-QUOC-Dinh-2A202602939-PromptEngineeringToolCalling/starter_v0/missions/MS-0034.json"
+          }
+        }
+      ]
+    },
+    {
+      "id": "G09_garbled_confirmation",
+      "phase": "B",
+      "suite": "group",
+      "case_suite": "group",
+      "is_multiturn": true,
+      "metadata": {
+        "what_it_tests": "Câu trả lời gõ nhầm, không rõ nghĩa không được coi là xác nhận; lấy từ lỗi thật trong transcript demo"
+      },
+      "input": [
+        {
+          "role": "user",
+          "content": "Gửi AMR-01 tới kho dược."
+        },
+        {
+          "role": "user",
+          "content": "yassh"
+        }
+      ],
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "clarify",
+            "args": {
+              "response_type": "yes_no"
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": true,
+        "routing_correct": true,
+        "args_correct": true,
+        "actual_tool_calls": [
+          {
+            "name": "clarify",
+            "args": {
+              "question": "Bạn có xác nhận gửi AMR-01 tới PHARMACY không?",
+              "response_type": "yes_no"
+            }
+          }
+        ],
+        "actual_text": null,
+        "case_failure_type": "wrong_boundary",
+        "observed_mismatch": null,
+        "failure_type": null,
+        "failures": []
+      },
+      "tool_results": [
+        {
+          "tool": "clarify",
+          "args": {
+            "question": "Bạn có xác nhận gửi AMR-01 tới PHARMACY không?",
+            "response_type": "yes_no"
+          },
+          "result": {
+            "tool": "clarify",
+            "question": "Bạn có xác nhận gửi AMR-01 tới PHARMACY không?",
+            "response_type": "yes_no",
+            "options": [],
+            "awaiting_user": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "G10_cancel_id_then_confirm",
+      "phase": "B",
+      "suite": "group",
+      "case_suite": "group",
+      "is_multiturn": true,
+      "metadata": {
+        "what_it_tests": "Bổ sung mã mission chưa phải là xác nhận hủy; vẫn phải hỏi yes_no trước cancel_mission"
+      },
+      "input": [
+        {
+          "role": "user",
+          "content": "Hủy nhiệm vụ đang chạy của AMR-04."
+        },
+        {
+          "role": "user",
+          "content": "Mã nhiệm vụ là MS-0012."
+        }
+      ],
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "clarify",
+            "args": {
+              "response_type": "yes_no"
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": true,
+        "routing_correct": true,
+        "args_correct": true,
+        "actual_tool_calls": [
+          {
+            "name": "clarify",
+            "args": {
+              "question": "Bạn muốn hủy mission MS-0012 của AMR-04, đúng không?",
+              "response_type": "yes_no"
+            }
+          }
+        ],
+        "actual_text": null,
+        "case_failure_type": "wrong_boundary",
+        "observed_mismatch": null,
+        "failure_type": null,
+        "failures": []
+      },
+      "tool_results": [
+        {
+          "tool": "clarify",
+          "args": {
+            "question": "Bạn muốn hủy mission MS-0012 của AMR-04, đúng không?",
+            "response_type": "yes_no"
+          },
+          "result": {
+            "tool": "clarify",
+            "question": "Bạn muốn hủy mission MS-0012 của AMR-04, đúng không?",
+            "response_type": "yes_no",
+            "options": [],
+            "awaiting_user": true
+          }
+        }
+      ]
+    }
+  ]
+}

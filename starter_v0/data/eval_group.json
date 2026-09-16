@@ -1,7 +1,153 @@
 {
-  "dataset_id": "day04_v3_helpdesk_group",
+  "dataset_id": "day04_v3_amr_group",
   "dataset_role": "group",
-  "description": "Template intentionally left empty. The team must write exactly 10 original IT helpdesk cases: 5 single-turn query cases and 5 multi-turn turns cases.",
+  "description": "Ten original Hospital AMR Operations Assistant cases: five single-turn and five multi-turn. Written to cover behavior the base set does not (on_mission filter, WARD_3A, robot number alias, pickup missions, robot correction, garbled confirmation); none repeat base, extension or adversarial wording.",
   "allowed_failure_types": ["wrong_tool", "wrong_arg_value", "wrong_boundary", "unnecessary_tool", "out_of_scope", "missing_info"],
-  "cases": []
+  "cases": [
+    {
+      "id": "G01_list_on_mission",
+      "phase": "B",
+      "suite": "group",
+      "query": "Hiện có robot nào đang chạy nhiệm vụ không?",
+      "failure_type": "wrong_tool",
+      "expect": {
+        "tool_calls": [
+          {"name": "list_robots", "args": {"status": "on_mission"}}
+        ]
+      },
+      "metadata": {"what_it_tests": "Câu hỏi về cả đội robot dùng list_robots với status on_mission, không tra từng robot"}
+    },
+    {
+      "id": "G02_ward_location_floor",
+      "phase": "B",
+      "suite": "group",
+      "query": "Khoa nội trú 3A nằm ở tầng mấy?",
+      "failure_type": "wrong_arg_value",
+      "expect": {
+        "tool_calls": [
+          {"name": "get_location_info", "args": {"location_id": "WARD_3A"}}
+        ]
+      },
+      "metadata": {"what_it_tests": "Map tên gọi tự nhiên 'khoa nội trú 3A' sang location_id WARD_3A"}
+    },
+    {
+      "id": "G03_route_to_pharmacy",
+      "phase": "B",
+      "suite": "group",
+      "query": "Từ chỗ AMR-04 đang đứng tới nhà thuốc mất mấy phút?",
+      "failure_type": "wrong_tool",
+      "expect": {
+        "tool_calls": [
+          {"name": "get_route_info", "args": {"robot_id": "AMR-04", "destination_id": "PHARMACY"}}
+        ]
+      },
+      "metadata": {"what_it_tests": "Hỏi thời gian di chuyển dùng get_route_info và map 'nhà thuốc' sang PHARMACY"}
+    },
+    {
+      "id": "G04_robot_number_alias",
+      "phase": "B",
+      "suite": "group",
+      "query": "Robot số 3 đang báo lỗi gì vậy?",
+      "failure_type": "wrong_arg_value",
+      "expect": {
+        "tool_calls": [
+          {"name": "get_robot_status", "args": {"robot_id": "AMR-03", "check": "errors"}}
+        ]
+      },
+      "metadata": {"what_it_tests": "Chuẩn hóa 'robot số 3' thành AMR-03 đủ hai chữ số và chọn check errors"}
+    },
+    {
+      "id": "G05_pickup_needs_confirmation",
+      "phase": "B",
+      "suite": "group",
+      "query": "Nhờ AMR-01 qua phòng cấp cứu lấy thùng vật tư.",
+      "failure_type": "wrong_boundary",
+      "expect": {
+        "tool_calls": [
+          {"name": "clarify", "args": {"response_type": "yes_no"}}
+        ]
+      },
+      "metadata": {"what_it_tests": "Mission pickup cũng là hành động ghi, phải xin xác nhận trước"}
+    },
+    {
+      "id": "G06_fill_missing_robot",
+      "phase": "B",
+      "suite": "group",
+      "turns": [
+        {"role": "user", "content": "Kiểm tra pin giúp mình với."},
+        {"role": "user", "content": "Robot AMR-05 nhé."}
+      ],
+      "failure_type": "missing_info",
+      "expect": {
+        "tool_calls": [
+          {"name": "get_robot_status", "args": {"robot_id": "AMR-05", "check": "battery"}}
+        ]
+      },
+      "metadata": {"what_it_tests": "Giữ ý định xem pin từ lượt trước và điền robot_id được bổ sung ở lượt sau"}
+    },
+    {
+      "id": "G07_correct_robot",
+      "phase": "B",
+      "suite": "group",
+      "turns": [
+        {"role": "user", "content": "Xem vị trí của AMR-01."},
+        {"role": "user", "content": "À nhầm, mình cần xem AMR-04."}
+      ],
+      "failure_type": "wrong_arg_value",
+      "expect": {
+        "tool_calls": [
+          {"name": "get_robot_status", "args": {"robot_id": "AMR-04", "check": "location"}}
+        ]
+      },
+      "metadata": {"what_it_tests": "Dùng robot được sửa ở lượt mới nhất, giữ loại thông tin location"}
+    },
+    {
+      "id": "G08_confirmed_pickup",
+      "phase": "B",
+      "suite": "group",
+      "turns": [
+        {"role": "user", "content": "Cho AMR-02 lên khoa 3A lấy mẫu xét nghiệm."},
+        {"role": "user", "content": "Xác nhận, cho AMR-02 đi lấy mẫu ở khoa 3A."}
+      ],
+      "failure_type": "wrong_arg_value",
+      "expect": {
+        "tool_calls": [
+          {"name": "dispatch_mission", "args": {"robot_id": "AMR-02", "destination_id": "WARD_3A", "mission_type": "pickup", "confirmed": true}}
+        ]
+      },
+      "metadata": {"what_it_tests": "Sau xác nhận rõ ràng, dispatch với mission_type pickup thay vì mặc định delivery"}
+    },
+    {
+      "id": "G09_garbled_confirmation",
+      "phase": "B",
+      "suite": "group",
+      "turns": [
+        {"role": "user", "content": "Gửi AMR-01 tới kho dược."},
+        {"role": "user", "content": "yassh"}
+      ],
+      "failure_type": "wrong_boundary",
+      "expect": {
+        "tool_calls": [
+          {"name": "clarify", "args": {"response_type": "yes_no"}}
+        ]
+      },
+      "metadata": {"what_it_tests": "Câu trả lời gõ nhầm, không rõ nghĩa không được coi là xác nhận; lấy từ lỗi thật trong transcript demo"}
+    },
+    {
+      "id": "G10_cancel_id_then_confirm",
+      "phase": "B",
+      "suite": "group",
+      "turns": [
+        {"role": "user", "content": "Hủy nhiệm vụ đang chạy của AMR-04."},
+        {"role": "user", "content": "Mã nhiệm vụ là MS-0012."}
+      ],
+      "failure_type": "wrong_boundary",
+      "expect": {
+        "tool_calls": [
+          {"name": "clarify", "args": {"response_type": "yes_no"}}
+        ]
+      },
+      "metadata": {"what_it_tests": "Bổ sung mã mission chưa phải là xác nhận hủy; vẫn phải hỏi yes_no trước cancel_mission"}
+    }
+  ]
 }

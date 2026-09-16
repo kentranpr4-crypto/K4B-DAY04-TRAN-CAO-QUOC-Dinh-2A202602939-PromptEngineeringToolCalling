@@ -391,12 +391,13 @@
 <body>
 
 <!--
-  GHI CHÚ CHO NHÓM (Member 4):
-  File này là UI chat độc lập, dùng "mock agent" viết bằng JS thuần để demo được
-  ngay trên localhost, KHÔNG cần chờ backend FastAPI/Flask của Member 2 chạy xong.
-  Toàn bộ logic mock nằm trong hàm respondToOperator() ở cuối file.
-  Khi backend thật (POST /chat) đã sẵn sàng, chỉ cần thay lời gọi respondToOperator(text)
-  bằng fetch thật — xem hàm callRealBackend() được để sẵn bên dưới làm mẫu.
+  GHI CHÚ CHO NHÓM:
+  UI do Member 4 viết; Member 2 nối vào backend thật (server.py).
+  - Chạy: cd starter_v0 && unset PYTHONPATH && source .venv/bin/activate && python server.py
+    rồi mở http://127.0.0.1:8000/ — tool call, input, kết quả/lỗi và artifact_version trong
+    "Nhật ký tool" đến từ agent loop thật (chat.py) và tool Python thật.
+  - Mở file trực tiếp khi không có server.py thì UI rơi về "mock agent" JS (respondToOperator)
+    và gắn nhãn MÔ PHỎNG. Không dùng chế độ mô phỏng làm bằng chứng.
 -->
 
 <div class="app-shell">
@@ -408,10 +409,10 @@
     </div>
     <div class="topbar-right">
       <div class="version-group" id="versionGroup" aria-label="Phiên bản prompt đang hoạt động">
-        <button data-v="v0">v0</button>
+        <button data-v="v0" class="active">v0</button>
         <button data-v="v1">v1</button>
         <button data-v="v2">v2</button>
-        <button data-v="v3" class="active">v3</button>
+        <button data-v="v3">v3</button>
       </div>
       <button class="reset-btn" id="resetBtn">Đặt lại phiên</button>
       <span class="session-tag" id="sessionTag"></span>
@@ -520,7 +521,9 @@ function initialMissions(){
 }
 
 let state = {
-  version: 'v3',
+  version: 'v0',        // nhãn gửi lên server; artifact_version thật do server tính từ file
+  backend: null,        // null = chưa kiểm tra, true = server.py, false = MÔ PHỎNG
+  artifactVersion: null,
   robots: initialRobots(),
   missions: initialMissions(),
   missionCounter: 31,
@@ -800,13 +803,29 @@ function entryNoTool(failureType, note){
 /* =========================================================================
    ĐIỂM TÍCH HỢP BACKEND THẬT — Member 2/1 dùng khi FastAPI/Flask đã chạy
    ========================================================================= */
+// Cùng origin khi UI được phục vụ bởi server.py; mở file trực tiếp thì gọi localhost:8000.
+const BACKEND_BASE = location.protocol.startsWith('http') ? '' : 'http://localhost:8000';
+
 async function callRealBackend(text, sessionId, version){
-  const res = await fetch('http://localhost:8000/chat', {
+  const res = await fetch(`${BACKEND_BASE}/chat`, {
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body: JSON.stringify({ session_id:sessionId, message:text, version })
   });
-  return await res.json(); // kỳ vọng { reply, tool_calls:[{tool,input,result,error,version}] }
+  const data = await res.json();
+  // data: { reply, status, tool_calls:[{tool,kind,input,output,result,error,version}], quick_replies, artifact_version, transcript }
+  return { ok: res.ok, data };
+}
+
+async function loadRealFleet(){
+  const res = await fetch(`${BACKEND_BASE}/fleet`);
+  if(!res.ok) throw new Error(`fleet HTTP ${res.status}`);
+  const data = await res.json();
+  const robots = {};
+  data.robots.forEach(r => {
+    robots[r.robot_id] = { status:r.status, battery:r.battery_pct, locationLabel:r.location_name, missionId:null };
+  });
+  return robots;
 }
 
 /* =========================================================================
@@ -817,8 +836,14 @@ const activityListEl = document.getElementById('activityList');
 const activityCountEl = document.getElementById('activityCount');
 const fleetStripEl = document.getElementById('fleetStrip');
 const sessionTagEl = document.getElementById('sessionTag');
-const sessionId = 'demo-' + Math.random().toString(36).slice(2,8);
-sessionTagEl.textContent = `phiên cục bộ · ${sessionId}`;
+let sessionId = newSessionId();
+function newSessionId(){ return 'ui-' + Math.random().toString(36).slice(2,8); }
+function renderSessionTag(){
+  const mode = state.backend === true ? `backend thật · ${state.artifactVersion || state.version}`
+             : state.backend === false ? 'MÔ PHỎNG (không có server.py)' : 'đang kết nối…';
+  sessionTagEl.textContent = `${mode} · ${sessionId}`;
+}
+renderSessionTag();
 
 function renderFleet(){
   fleetStripEl.innerHTML = '';
@@ -890,7 +915,7 @@ function addActivityEntry(entry){
     <div class="entry-head">
       <span class="entry-tool">${toolName}</span>
       <span class="entry-kind" style="color:${KIND_COLOR[entry.kind]}; background:${KIND_COLOR[entry.kind]}1a;">${entry.kind}</span>
-      <span class="entry-version">${state.version}</span>
+      <span class="entry-version">${escapeHtml(String(entry.version || state.version))}</span>
       <span class="entry-time">${time}</span>
     </div>`;
 
@@ -924,12 +949,40 @@ function escapeHtml(s){
 /* =========================================================================
    XỬ LÝ INPUT
    ========================================================================= */
-function submitText(text){
+async function submitText(text){
   if(!text || !text.trim()) return;
   addMessage('operator', text);
+  if(state.backend !== false){
+    try{
+      const { ok, data } = await callRealBackend(text, sessionId, state.version);
+      state.backend = true;
+      if(!ok){
+        // Hiện lỗi backend/provider thật, không che.
+        addActivityEntry({ tool:null, kind:'bị chặn', input:{ message:text },
+          output:{ error:data.error || 'backend_error', message:data.message, transcript:data.transcript },
+          version:data.artifact_version });
+        addMessage('agent', `Lỗi backend: ${data.error || 'backend_error'} — ${data.message || ''}`);
+        renderSessionTag();
+        return;
+      }
+      state.artifactVersion = data.artifact_version;
+      renderSessionTag();
+      (data.tool_calls || []).forEach(addActivityEntry);
+      addMessage('agent', data.reply, data.quick_replies);
+      return;
+    }catch(err){
+      if(state.backend === true){
+        addMessage('agent', `Mất kết nối server.py: ${err.message}`);
+        return;
+      }
+      state.backend = false;
+      renderSessionTag();
+      addMessage('agent', 'Không kết nối được server.py — chuyển sang MÔ PHỎNG. Kết quả dưới đây không phải agent thật.');
+    }
+  }
   const { toolCalls, reply, quickReplies } = respondToOperator(text);
-  toolCalls.forEach(addActivityEntry);
-  addMessage('agent', reply, quickReplies);
+  toolCalls.forEach(entry => addActivityEntry({ ...entry, version:'MÔ PHỎNG' }));
+  addMessage('agent', `[MÔ PHỎNG] ${reply}`, quickReplies);
 }
 
 document.getElementById('sendBtn').addEventListener('click', () => {
@@ -963,6 +1016,9 @@ document.getElementById('resetBtn').addEventListener('click', () => {
   state.missionCounter = 31;
   state.pending = null;
   state.entryCount = 0;
+  sessionId = newSessionId();   // phiên mới trên server.py (lịch sử hội thoại riêng)
+  renderSessionTag();
+  refreshFleet();
   messagesEl.innerHTML = '';
   activityListEl.innerHTML = '<p class="activity-empty">Chưa có tool nào được gọi. Gửi một yêu cầu ở khung chat để xem agent chọn tool.</p>';
   activityCountEl.textContent = '0';
@@ -982,7 +1038,18 @@ document.querySelectorAll('.panel-tabs button').forEach(btn => {
 });
 
 /* Khởi tạo */
+async function refreshFleet(){
+  try{
+    state.robots = await loadRealFleet();
+    if(state.backend === null) state.backend = true;
+  }catch(err){
+    state.backend = false;
+  }
+  renderSessionTag();
+  renderFleet();
+}
 renderFleet();
+refreshFleet();
 addMessage('agent', 'Xin chào, mình là trợ lý vận hành AMR. Hỏi vị trí robot, gửi hoặc hủy mission — mọi thao tác ghi dữ liệu sẽ được xác nhận trước khi thực hiện.');
 </script>
 </body>

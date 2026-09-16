@@ -12,6 +12,8 @@
 
 ## Thành viên
 
+GitHub ghi theo tên tác giả commit; mỗi người kiểm tra lại username GitHub thật.
+
 | Họ và tên | MSSV | GitHub | Vai trò và công việc | File/commit/PR |
 |---|---|---|---|---|
 
@@ -50,11 +52,12 @@
   * **CP3 - FINAL:** M4 tích hợp UI trực tiếp với hàm `run_model_tool_loop` hoàn chỉnh của M1+M2, đảm bảo hiển thị đúng mã lỗi backend (`low_battery`, `restricted_patient_data`) mà M2 trả về.
 ## INDIVIDUAL
 
-Sao chép mục này cho từng thành viên.
+Mỗi thành viên tự viết và commit mục của mình. Các dòng _(tự viết)_ không được viết thay.
 
-### Họ và tên — MSSV
+### _(Họ và tên M1)_ — _(MSSV)_
 
 - Phần việc và file/commit/PR:
+### _Trần Cao Quốc Định - 2A202602939
 M1 (Agent / Prompt):
 
 Phần việc: Thiết kế & tối ưu System Prompt qua các phiên bản v0–v3; siết ranh giới an toàn và luồng xác nhận 2 bước.
@@ -62,7 +65,7 @@ Phần việc: Thiết kế & tối ưu System Prompt qua các phiên bản v0�
 File sở hữu: artifacts/system_prompt.md, artifacts/version_log.csv (cột hypothesis).
 
 Commit / PR: Commit a1b2c3d (Init system prompt v0), PR #4 (Optimized prompt for v3 safety).
-
+### _Nguyễn Thái Lương - 2A202602932 
 M2 (Tool / Backend):
 
 Phần việc: Lập trình 7 tools theo schema, cài đặt Safety Guards (pin yếu <20%, restricted area), tạo dummy data bệnh viện.
@@ -70,7 +73,7 @@ Phần việc: Lập trình 7 tools theo schema, cài đặt Safety Guards (pin 
 File sở hữu: artifacts/tools.yaml, tools/amr_tool/, hospital_data/, scripts/smoke_tools.py.
 
 Commit / PR: Commit e5f6g7h (Add low_battery & restricted_destination guards), PR #2 (Implement 7 tools backend).
-
+### _ Nguyễn Mạnh Tiến - 2A202602506
 M3 (Evaluation / Evidence):
 
 Phần việc: Viết bộ test case (30 base + 12 adv + 10 group), chạy eval suite v0–v3, trích xuất log lỗi cho M1/M2.
@@ -78,7 +81,7 @@ Phần việc: Viết bộ test case (30 base + 12 adv + 10 group), chạy eval 
 File sở hữu: data/eval_amr_*.json, data/eval_group.json, runs/, artifacts/version_log.csv.
 
 Commit / PR: Commit i8j9k0l (Add 12 adversarial cases & run v3 eval), PR #5 (Finalize eval logs).
-
+### _ Nguyễn Xuân Trường - 2A202602761
 M4 (UI / Report):
 
 Phần việc: Dựng giao diện Chatbot UI hiện Tool Output/Errors, ghi transcript demo, hoàn thiện REPORT.md & TEAM.md.

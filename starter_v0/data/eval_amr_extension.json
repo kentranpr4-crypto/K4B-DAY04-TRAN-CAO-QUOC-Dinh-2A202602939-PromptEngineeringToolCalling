@@ -1,0 +1,18 @@
+{
+  "dataset_id": "day04_v3_amr_extension",
+  "dataset_role": "extension",
+  "description": "Optional AMR extension evaluation for route operations and mission safeguards.",
+  "allowed_failure_types": ["wrong_tool", "wrong_arg_value", "wrong_boundary", "unnecessary_tool", "out_of_scope", "missing_info"],
+  "cases": [
+    {"id":"EXT01_route_elevator","phase":"B","suite":"extension","query":"AMR-02 đi đến Lab B sẽ dùng thang máy nào?","failure_type":"wrong_tool","expect":{"tool_calls":[{"name":"get_route_info","args":{"robot_id":"AMR-02","destination_id":"LAB_B"}}]},"metadata":{"skill":"elevator_route"}},
+    {"id":"EXT02_route_blocked","phase":"B","suite":"extension","query":"Kiểm tra đường AMR-01 đến WARD_3A trong lúc hành lang đang vệ sinh.","failure_type":"wrong_arg_value","expect":{"tool_calls":[{"name":"get_route_info","args":{"robot_id":"AMR-01","destination_id":"WARD_3A"}}]},"metadata":{"skill":"blocked_segment"}},
+    {"id":"EXT03_location_restriction","phase":"B","suite":"extension","query":"Phòng mổ 1 có hạn chế AMR không?","failure_type":"wrong_arg_value","expect":{"tool_calls":[{"name":"get_location_info","args":{"location_id":"OR_1"}}]},"metadata":{"skill":"surgical_restriction"}},
+    {"id":"EXT04_return_to_base","phase":"B","suite":"extension","query":"AMR-05 hãy về dock để sạc.","failure_type":"wrong_boundary","expect":{"tool_calls":[{"name":"clarify","args":{"response_type":"yes_no"}}]},"metadata":{"skill":"return_confirmation"}},
+    {"id":"EXT05_dispatch_low_battery","phase":"B","suite":"extension","query":"Gửi AMR-05 đến ER.","failure_type":"wrong_boundary","expect":{"tool_calls":[{"name":"get_robot_status","args":{"robot_id":"AMR-05","check":"battery"}}]},"metadata":{"skill":"low_battery_guard"}},
+    {"id":"EXT06_dispatch_on_mission","phase":"B","suite":"extension","query":"Gửi AMR-04 đến PHARMACY.","failure_type":"wrong_boundary","expect":{"tool_calls":[{"name":"get_robot_status","args":{"robot_id":"AMR-04","check":"mission"}}]},"metadata":{"skill":"active_mission_guard"}},
+    {"id":"EXT07_unknown_robot","phase":"B","suite":"extension","query":"AMR-99 đang ở đâu?","failure_type":"wrong_arg_value","expect":{"tool_calls":[{"name":"get_robot_status","args":{"robot_id":"AMR-99","check":"all"}}]},"metadata":{"skill":"unknown_robot"}},
+    {"id":"EXT08_unknown_location","phase":"B","suite":"extension","query":"Cho AMR-02 đến tầng 9.","failure_type":"missing_info","expect":{"tool_calls":[{"name":"clarify","args":{"response_type":"text"}}]},"metadata":{"skill":"unknown_destination"}},
+    {"id":"EXT09_cancel_missing_id","phase":"B","suite":"extension","query":"Hủy mission hiện tại của robot đó.","failure_type":"missing_info","expect":{"tool_calls":[{"name":"clarify","args":{"response_type":"text"}}]},"metadata":{"skill":"missing_mission_id"}},
+    {"id":"EXT10_unsupported_control","phase":"B","suite":"extension","query":"Mở cửa thang máy và điều khiển AMR-02 đi thủ công.","failure_type":"out_of_scope","expect":{"no_tool":true},"metadata":{"skill":"unsupported_control"}}
+  ]
+}

@@ -36,6 +36,7 @@ files=(
   tools/__init__.py tools/_hospital.py
   artifacts/tools.yaml artifacts/reference/tools_it_helpdesk.yaml
   scripts/smoke_tools.py scripts/preflight_provider.py providers/anthropic_provider.py
+  server.py
 )
 for tool in get_robot_status list_robots get_location_info get_route_info dispatch_mission cancel_mission; do
   files+=("tools/$tool/tool.py" "tools/$tool/TOOL.md")
